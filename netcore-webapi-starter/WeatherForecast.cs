@@ -1,4 +1,4 @@
-namespace NetCore_WebAPI_Starter;
+namespace Starter.API;
 
 public class WeatherForecast {
   public DateTime Date { get; set; }
