@@ -5,15 +5,13 @@ namespace NetCore_WebAPI_Starter.Controllers;
 [ApiController]
 [Route("[controller]")]
 public class WeatherForecastController : ControllerBase {
-  private static readonly string[] Summaries = {
+  private static readonly string[] summaries = {
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching",
   };
 
   private readonly ILogger<WeatherForecastController> logger;
 
-  public WeatherForecastController(ILogger<WeatherForecastController> logger) {
-    this.logger = logger;
-  }
+  public WeatherForecastController(ILogger<WeatherForecastController> logger) => this.logger = logger;
 
   [HttpGet(Name = "GetWeatherForecast")]
   public IEnumerable<WeatherForecast> Get() {
@@ -22,7 +20,7 @@ public class WeatherForecastController : ControllerBase {
         index => new WeatherForecast {
           Date = DateTime.Now.AddDays(index),
           TemperatureC = Random.Shared.Next(-20, 55),
-          Summary = Summaries[Random.Shared.Next(Summaries.Length)],
+          Summary = summaries[Random.Shared.Next(summaries.Length)],
         }
       )
       .ToArray();
