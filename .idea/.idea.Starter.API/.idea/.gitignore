@@ -4,7 +4,7 @@
 # Rider ignored files
 /projectSettingsUpdater.xml
 /contentModel.xml
-/.idea.netcore-webapi-starter.iml
+/.idea.Starter.API.iml
 /modules.xml
 # Editor-based HTTP Client requests
 /httpRequests/

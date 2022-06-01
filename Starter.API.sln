@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "netcore-webapi-starter", "netcore-webapi-starter\netcore-webapi-starter.csproj", "{C1027DD5-602B-4CC7-A2FC-AB2DB126892B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Starter.API", "Starter.API\Starter.API.csproj", "{C1027DD5-602B-4CC7-A2FC-AB2DB126892B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
