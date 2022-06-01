@@ -1,17 +1,3 @@
 {
-  "tasks": [
-    {
-      "name": "dotnet-format",
-      "command": "dotnet",
-      "args": [
-        "format",
-        "--include",
-        "${staged}"
-      ],
-      "include": [
-        "**/*.cs",
-        "**/*.vb"
-      ]
-    }
-  ]
+  "tasks": []
 }
