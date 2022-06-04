@@ -1,0 +1,10 @@
+{
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    "package.json": "package-lock.json",
+    "appsettings.json": "appsettings.*.json",
+    "*.sln": "*.sln.DotSettings",
+    "*.cs": "${capture}.Designer.cs",
+    "*.feature": "${capture}.feature.cs"
+  }
+}
