@@ -1,7 +1,8 @@
+using Starter.API.Shared.Domain.Model;
+
 namespace Starter.API.Weather.Domain.Models;
 
-public class Forecast {
-  public long Id { get; set; }
+public class Forecast : BaseModel {
   public DateTime Date { get; set; }
   public int TemperatureC { get; set; }
   public string? Summary { get; set; }

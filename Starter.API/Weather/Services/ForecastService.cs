@@ -35,7 +35,7 @@ public class ForecastService : IForecastService {
       return new ForecastResponse("Forecast not found");
     }
 
-    current.CopyProperties(forecast);
+    forecast.CopyProperties(current);
 
     try {
       repository.Update(current);

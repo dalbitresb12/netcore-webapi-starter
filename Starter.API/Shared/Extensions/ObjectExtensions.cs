@@ -4,14 +4,16 @@ namespace Starter.API.Shared.Extensions;
 
 public static class ObjectExtensions {
   // Adapted from https://stackoverflow.com/a/8724150/15040387
-  public static void CopyProperties(this object? source, object? destination) {
+  public static void CopyProperties(this object? source, object? destination, string[]? ignoredKeys = null) {
     if (source is null || destination is null) {
       throw new Exception("Source or/and destination objects are null");
     }
+
     var typeDest = destination.GetType();
     var typeSrc = source.GetType();
     var srcProps = typeSrc.GetProperties();
     foreach (var srcProp in srcProps) {
+      if (ignoredKeys != null && ignoredKeys.Contains(srcProp.Name)) continue;
       if (!srcProp.CanRead) continue;
       var targetProp = typeDest.GetProperty(srcProp.Name);
       if (targetProp is null) continue;
