@@ -82,14 +82,14 @@ csharp_style_var_for_built_in_types = true:suggestion
 csharp_style_var_when_type_is_apparent = true:suggestion
 
 # Expression-bodied members
-csharp_style_expression_bodied_accessors = when_on_single_line
-csharp_style_expression_bodied_constructors = when_on_single_line
-csharp_style_expression_bodied_indexers = when_on_single_line
-csharp_style_expression_bodied_lambdas = when_on_single_line
-csharp_style_expression_bodied_local_functions = when_on_single_line
-csharp_style_expression_bodied_methods = when_on_single_line
-csharp_style_expression_bodied_operators = when_on_single_line
-csharp_style_expression_bodied_properties = when_on_single_line
+csharp_style_expression_bodied_accessors = unset
+csharp_style_expression_bodied_constructors = unset
+csharp_style_expression_bodied_indexers = unset
+csharp_style_expression_bodied_lambdas = unset
+csharp_style_expression_bodied_local_functions = unset
+csharp_style_expression_bodied_methods = unset
+csharp_style_expression_bodied_operators = unset
+csharp_style_expression_bodied_properties = unset
 
 # Pattern matching preferences
 csharp_style_pattern_matching_over_as_with_null_check = true
@@ -189,9 +189,13 @@ dotnet_naming_rule.class_should_be_pascalcase.severity = suggestion
 dotnet_naming_rule.class_should_be_pascalcase.symbols = class
 dotnet_naming_rule.class_should_be_pascalcase.style = pascalcase
 
-dotnet_naming_rule.public_or_protected_field_should_be_pascalcase.severity = suggestion
-dotnet_naming_rule.public_or_protected_field_should_be_pascalcase.symbols = public_or_protected_field
-dotnet_naming_rule.public_or_protected_field_should_be_pascalcase.style = pascalcase
+dotnet_naming_rule.protected_field_should_be_camelcase.severity = suggestion
+dotnet_naming_rule.protected_field_should_be_camelcase.symbols = protected_field
+dotnet_naming_rule.protected_field_should_be_camelcase.style = camelcase
+
+dotnet_naming_rule.public_field_should_be_pascalcase.severity = suggestion
+dotnet_naming_rule.public_field_should_be_pascalcase.symbols = public_field
+dotnet_naming_rule.public_field_should_be_pascalcase.style = pascalcase
 
 dotnet_naming_rule.property_should_be_pascalcase.severity = suggestion
 dotnet_naming_rule.property_should_be_pascalcase.symbols = property
@@ -275,9 +279,13 @@ dotnet_naming_symbols.property.applicable_kinds = property
 dotnet_naming_symbols.property.applicable_accessibilities = public, internal, private, protected, protected_internal, private_protected
 dotnet_naming_symbols.property.required_modifiers =
 
-dotnet_naming_symbols.public_or_protected_field.applicable_kinds = field
-dotnet_naming_symbols.public_or_protected_field.applicable_accessibilities = public, protected
-dotnet_naming_symbols.public_or_protected_field.required_modifiers =
+dotnet_naming_symbols.protected_field.applicable_kinds = field
+dotnet_naming_symbols.protected_field.applicable_accessibilities = protected
+dotnet_naming_symbols.protected_field.required_modifiers =
+
+dotnet_naming_symbols.public_field.applicable_kinds = field
+dotnet_naming_symbols.public_field.applicable_accessibilities = public
+dotnet_naming_symbols.public_field.required_modifiers =
 
 dotnet_naming_symbols.private_or_internal_field.applicable_kinds = field
 dotnet_naming_symbols.private_or_internal_field.applicable_accessibilities = internal, private, private_protected
