@@ -1,3 +1,6 @@
+using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+
 namespace Starter.API.Shared.Domain.Service.Communication;
 
 public abstract class BaseResponse<T> {
@@ -15,5 +18,14 @@ public abstract class BaseResponse<T> {
     Success = true;
     Message = string.Empty;
     Resource = resource;
+  }
+
+  public IActionResult ToResponse<TResponse>(ControllerBase controller, IMapper mapper) {
+    if (!Success || Resource is null) {
+      return controller.BadRequest(Message);
+    }
+
+    var mapped = mapper.Map<T, TResponse>(Resource);
+    return controller.Ok(mapped);
   }
 }
