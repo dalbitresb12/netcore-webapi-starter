@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using Starter.API.Shared.Extensions;
 using Starter.API.Weather.Domain.Repositories;
 using Starter.API.Weather.Domain.Services;
@@ -14,7 +15,20 @@ builder.Services.AddControllers(options => options.UseGeneralRoutePrefix("api/v1
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options => options.SwaggerDoc("v1", new OpenApiInfo {
+  Title = "Weather Forecast API",
+  Version = "v1",
+  Description = "An ASP.NET Core Web API for managing Weather Forecast items",
+  TermsOfService = new Uri("https://example.com/terms"),
+  Contact = new OpenApiContact {
+    Name = "Example Contact",
+    Url = new Uri("https://example.com/contact"),
+  },
+  License = new OpenApiLicense {
+    Name = "MIT",
+    Url = new Uri("https://choosealicense.com/licenses/mit/"),
+  },
+}));
 
 // Add database connection
 var connectionString = builder.Configuration["DbConnectionString"];
