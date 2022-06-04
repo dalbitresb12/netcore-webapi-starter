@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Starter.API.Shared.Extensions;
 using Starter.API.Weather.Domain.Repositories;
 using Starter.API.Weather.Domain.Services;
 using Starter.API.Weather.Mapping;
@@ -8,8 +9,8 @@ using Starter.API.Weather.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddControllers();
+// Add services to the container with path prefix
+builder.Services.AddControllers(options => options.UseGeneralRoutePrefix("api/v1"));
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -30,6 +31,8 @@ builder.Services.AddDbContext<AppDbContext>(
 
 // Add lowercase routes
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
+
+// Add path prefix and versioning
 
 // Dependency Injection configuration
 builder.Services.AddScoped<IForecastRepository, ForecastRepository>();
