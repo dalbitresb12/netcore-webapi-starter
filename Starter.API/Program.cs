@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Starter.API.Shared.Extensions;
@@ -79,3 +80,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// ReSharper disable once ClassNeverInstantiated.Global
+[SuppressMessage("Design", "CA1050:Declare types in namespaces")]
+public partial class Program {}
