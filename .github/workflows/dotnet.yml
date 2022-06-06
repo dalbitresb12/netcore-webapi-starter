@@ -14,7 +14,7 @@ jobs:
       CLOUDFLARE_PROJECT_NAME: netcore-webapi-starter-livingdoc
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
