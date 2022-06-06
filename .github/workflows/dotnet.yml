@@ -104,6 +104,7 @@ jobs:
           name: Test Results
           path: ${{ env.PROJECT_NAME }}.Tests/TestResults/test-results.trx
           reporter: dotnet-trx
+          fail-on-error: 'false'
       - name: Publish status to job summary
         id: jsum
         if: (success() || failure()) && steps.cf_deploy.outcome == 'success'
