@@ -56,6 +56,17 @@ jobs:
       - name: Build
         id: build
         run: dotnet build --no-restore --configuration Release
+      - name: Publish status to job summary
+        id: fail_jsum
+        if: (success() || failure()) && steps.build.outcome != 'success'
+        env:
+          BUILD_FAILED: true
+        uses: actions/github-script@v6
+        with:
+          result-encoding: string
+          script: |
+            const script = require('./.github/utils/cloudflare-summary.js');
+            return await script({ context, core });
       - name: Test
         id: test
         run: dotnet test --no-build --verbosity normal --configuration Release --logger "trx;LogFileName=test-results.trx"
@@ -119,7 +130,7 @@ jobs:
             const script = require('./.github/utils/cloudflare-summary.js');
             return await script({ context, core });
       - name: Create or update comment on pull request
-        if: (success() || failure()) && steps.jsum.outcome == 'success' && github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork
+        if: (success() || failure()) && (steps.jsum.outcome == 'success' || steps.fail_jsum.outcome == 'success') && github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork
         uses: peter-evans/create-or-update-comment@v2
         with:
           token: ${{ secrets.BOT_PAT }}

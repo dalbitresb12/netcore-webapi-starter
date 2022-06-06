@@ -148,6 +148,7 @@ const main = async ({ context, core }) => {
   }
 
   const isInitialEdit = process.env.IS_INITIAL_EDIT === "true";
+  const buildFailed = process.env.BUILD_FAILED === "true";
 
   const testReport = JSON.parse(process.env.TEST_REPORT || "{}");
 
@@ -187,7 +188,7 @@ const main = async ({ context, core }) => {
       { data: bold("Preview URL:") },
       { data: deploymentLinkTag },
     ]);
-  } else if (isInitialEdit) {
+  } else if (isInitialEdit && !buildFailed) {
     table[1].push({
       data: `${spacing(emojis.build.progress)} Build in progress...`,
     });
@@ -232,7 +233,7 @@ const main = async ({ context, core }) => {
 
   const html = summary.stringify();
 
-  if (isInitialEdit) {
+  if (isInitialEdit && !buildFailed) {
     await summary.emptyBuffer().clear();
   } else {
     await summary.write();
