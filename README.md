@@ -21,6 +21,26 @@ After that, open the project on your preferred IDE from the [list above](#recomm
 
 Your IDE should automatically restore all the tools needed (Husky.Net, `dotnet-ef` and npm dependencies) during project restore. If this doesn't happen run `dotnet restore` in the terminal.
 
+### 🚨 **IMPORTANT** 🚨
+
+JetBrains Rider might prompt you to install EF Core tools automatically with a pop-up when you open the project. You can safely ignore this prompt, as the tool is already included in the projects manifest and should be installed during project restore. To verify, run the following command:
+
+```sh
+# The output should be the one below the command
+$ dotnet ef
+
+                     _/\__
+               ---==/    \\
+         ___  ___   |.    \|\
+        | __|| __|  |  )   \\\
+        | _| | _|   \_/ |  //|\\
+        |___||_|       /   \\\/\\
+
+Entity Framework Core .NET Command-line Tools 6.0.5
+
+<Usage documentation follows, not shown.>
+```
+
 ## Database Connection
 
 This project is configured to use MySQL as the database, using [Pomelo's MySQL connector](https://github.com/PomeloFoundation/Pomelo.EntityFrameworkCore.MySql). The connection string will be read from the Secret Manager tool. You can read more about it [here](https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?view=aspnetcore-6.0).
