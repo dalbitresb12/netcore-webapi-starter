@@ -69,6 +69,7 @@ jobs:
       - name: Publish status to job summary
         if: success() || failure()
         env:
+          COMMIT_SHA: ${{ github.sha }}
           DEPLOYMENT_ID: ${{ steps.cf_deploy.outputs.id }}
           DEPLOYMENT_URL: ${{ steps.cf_deploy.outputs.url }}
         uses: actions/github-script@v6
