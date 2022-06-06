@@ -25,13 +25,87 @@ const createTag = (tag = "span", content = "", endTag = true, attributes = {}) =
  * @param {string} str
  * @returns {string}
  */
-const createInlineCode = (str) => createTag("code", str);
+const createCode = (str) => createTag("code", str);
 
 /**
  * @param {string} str
  * @returns {string}
  */
 const createStrong = (str) => createTag("strong", str);
+
+const emojis = {
+  build: {
+    success: ':white_check_mark:',
+    failed: ':no_entry_sign:',
+  },
+  check: ':heavy_check_mark:',
+  times: ':x:',
+};
+
+/**
+ * @param {string} str
+ * @returns {string}
+ */
+const spacing = (str) => `&nbsp;${str}&nbsp;`;
+
+/**
+ * @typedef TestReport
+ * @property {"success" | "failure"} conclusion
+ * @property {number} passed
+ * @property {number} failed
+ * @property {number} skipped
+ * @property {number} time
+ */
+
+/**
+ * @param {unknown} value
+ * @returns {value is TestReport}
+ */
+const validateTestReport = (value) => {
+  try {
+    if (typeof value !== "object") return false;
+    if (typeof value.conclusion !== "string") return false;
+    if (typeof value.passed !== "number") return false;
+    if (typeof value.failed !== "number") return false;
+    if (typeof value.skipped !== "number") return false;
+    if (typeof value.time !== "number") return false;
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
+
+/**
+ * @param {TestReport} testReport
+ * @returns {string}
+ */
+const createTestsBadge = (testReport) => {
+  const { conclusion, passed } = testReport;
+  if (conclusion === "success") {
+    return `https://img.shields.io/badge/tests-${passed}%20passed-brightgreen`;
+  }
+  return `https://img.shields.io/badge/tests-${passed}%20passed-red;`;
+};
+
+/**
+ * @param {number} value
+ * @param {string} word
+ * @param {string} pluralization
+ */
+const pluralize = (value, word, pluralization) => {
+  if (value === 1) return word;
+  return `${word}${pluralization}`;
+};
+
+/**
+ * @param {TestReport} testReport
+ * @returns {string}
+ */
+const createTestsText = (testReport) => {
+  const { passed, failed, skipped, time } = testReport;
+  const total = passed + failed + skipped;
+  return `${total} ${pluralize(total, 'test', 's')} were completed in ${time}ms, with ${passed} passed, ${failed} failed and ${skipped} skipped.`;
+};
 
 /**
  * @param {object} context
@@ -47,6 +121,11 @@ const main = async ({ core }) => {
   const projectName = process.env.CLOUDFLARE_PROJECT_NAME;
   if (!isValidString(projectName)) {
     throw new Error(`Invalid project name, received ${projectName}`);
+  }
+
+  const testReport = JSON.parse(process.env.TEST_REPORT || "{}");
+  if (!validateTestReport(testReport)) {
+    throw new Error(`Invalid test report, received ${testReport}`);
   }
 
   const deploymentId = process.env.DEPLOYMENT_ID;
@@ -67,7 +146,7 @@ const main = async ({ core }) => {
   const table = [
     [
       { data: createStrong("Latest commit:") },
-      { data: createInlineCode(commitSHA.substring(0, 7)) },
+      { data: createCode(commitSHA.substring(0, 7)) },
     ],
     [
       { data: createStrong("Status:") },
@@ -76,7 +155,7 @@ const main = async ({ core }) => {
 
   if (isValidString(deploymentUrl)) {
     table[1].push({
-      data: "&nbsp;:white_check_mark:&nbsp; Deploy successful!",
+      data: `${spacing(emojis.build.success)} Deploy successful!`,
     });
     const deploymentLinkTag = createTag("a", deploymentUrl, true, {
       href: deploymentUrl,
@@ -87,12 +166,15 @@ const main = async ({ core }) => {
     ]);
   } else {
     table[1].push({
-      data: "&nbsp;:no_entry_sign:&nbsp; Build failed.",
+      data: `${spacing(emojis.build.failed)} Build failed.`,
     });
   }
 
   const summary = core.summary
-    .addHeading(`Deploying with &nbsp;${linkTag}&nbsp;Cloudflare Pages`, 2)
+    .addHeading(`Test Results ${spacing(testReport.conclusion === "success" ? emojis.check : emojis.times)}`, 2)
+    .addImage(createTestsBadge(testReport), `Tests: ${testReport.passed} passed`)
+    .addRaw(createTestsText(testReport))
+    .addHeading(`Deploying LivingDoc with ${spacing(linkTag)} Cloudflare Pages`, 2)
     .addTable(table);
 
   if (isValidString(deploymentId)) {

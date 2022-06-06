@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-test:
-    name: "build and test"
+    name: Build and Test
     env:
       PROJECT_NAME: Starter.API
       CLOUDFLARE_PROJECT_NAME: netcore-webapi-starter-livingdoc
@@ -68,10 +68,19 @@ jobs:
         with:
           name: ${{ env.PROJECT_NAME }}.Tests-${{ runner.os }}-${{ steps.vars.outputs.sha_short }}
           path: ${{ env.PROJECT_NAME }}.Tests/TestResults/test-results.trx
+      - name: Publish test report
+        id: trep
+        if: (success() || failure()) && steps.build.outcome == 'success'
+        uses: dorny/test-reporter@v1
+        with:
+          name: Test Results
+          path: ${{ env.PROJECT_NAME }}.Tests/TestResults/test-results.trx
+          reporter: dotnet-trx
       - name: Publish status to job summary
         id: jsum
         if: (success() || failure()) && steps.cf_deploy.outcome == 'success'
         env:
+          TEST_REPORT: '{"conclusion":"${{ steps.trep.outputs.conclusion }}","passed":${{ steps.trep.outputs.passed }},"failed":${{ steps.trep.outputs.failed }},"skipped":${{ steps.trep.outputs.skipped }},"time":${{ steps.trep.outputs.time }}}'
           COMMIT_SHA: ${{ github.sha }}
           DEPLOYMENT_ID: ${{ steps.cf_deploy.outputs.id }}
           DEPLOYMENT_URL: ${{ steps.cf_deploy.outputs.url }}
