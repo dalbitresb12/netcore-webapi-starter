@@ -14,11 +14,8 @@ const isValidString = (str) => {
  * @returns {string}
  */
 const createTag = (tag = "span", content = "", endTag = true, attributes = {}) => {
-  const encoded = Object.keys(attributes).reduce((acc, key) => {
-    acc += ` ${key}="${attributes[key]}"`;
-    return acc;
-  }, "");
-  return `<${tag}${encoded}>${content}${endTag ? `</${tag}>` : ''}`;
+  const attrs = Object.entries(attributes).map(([key, value]) => ` ${key}="${value}"`).join('');
+  return `<${tag}${attrs}>${content}${endTag ? `</${tag}>` : ''}`;
 };
 
 /**
@@ -37,6 +34,7 @@ const emojis = {
   build: {
     success: ':white_check_mark:',
     failed: ':no_entry_sign:',
+    progress: ':zap:'
   },
   check: ':heavy_check_mark:',
   times: ':x:',
@@ -148,10 +146,9 @@ const main = async ({ core }) => {
     throw new Error(`Invalid project name, received ${projectName}`);
   }
 
+  const isInitialEdit = process.env.IS_INITIAL_EDIT === "true";
+
   const testReport = JSON.parse(process.env.TEST_REPORT || "{}");
-  if (!validateTestReport(testReport)) {
-    throw new Error(`Invalid test report, received ${testReport}`);
-  }
 
   const deploymentId = process.env.DEPLOYMENT_ID;
   const deploymentUrl = process.env.DEPLOYMENT_URL;
@@ -189,16 +186,26 @@ const main = async ({ core }) => {
       { data: createStrong("Preview URL:") },
       { data: deploymentLinkTag },
     ]);
+  } else if (isInitialEdit) {
+    table[1].push({
+      data: `${spacing(emojis.build.progress)} Build in progress...`,
+    });
   } else {
     table[1].push({
       data: `${spacing(emojis.build.failed)} Build failed.`,
     });
   }
 
-  const summary = core.summary
-    .addHeading(`Test Results ${spacing(testReport.conclusion === "success" ? emojis.check : emojis.times)}`, 2)
-    .addImage(createTestsBadge(testReport), `Tests: ${testReport.passed} passed`)
-    .addRaw(createTestsText(testReport))
+  const summary = core.summary;
+
+  if (validateTestReport(testReport) && !isInitialEdit) {
+    summary
+      .addHeading(`Test Results ${spacing(testReport.conclusion === "success" ? emojis.check : emojis.times)}`, 2)
+      .addImage(createTestsBadge(testReport), `Tests: ${testReport.passed} passed`)
+      .addRaw(createTestsText(testReport))
+  }
+
+  summary
     .addHeading(`Deploying LivingDoc with ${spacing(linkTag)} Cloudflare Pages`, 2)
     .addTable(table);
 
@@ -220,7 +227,12 @@ const main = async ({ core }) => {
     }));
 
   const html = summary.stringify();
-  await summary.write();
+
+  if (isInitialEdit) {
+    await summary.write();
+  } else {
+    await summary.emptyBuffer().clear();
+  }
 
   return html;
 };
