@@ -64,7 +64,7 @@ jobs:
           path: ${{ env.PROJECT_NAME }}/bin/Release/net6.0/**
       - name: Upload test results artifact
         uses: actions/upload-artifact@v3
-        if: (success() || failure()) && steps.test.outcome == 'success'
+        if: (success() || failure()) && steps.build.outcome == 'success'
         with:
           name: ${{ env.PROJECT_NAME }}.Tests-${{ runner.os }}-${{ steps.vars.outputs.sha_short }}
           path: ${{ env.PROJECT_NAME }}.Tests/TestResults/test-results.trx
