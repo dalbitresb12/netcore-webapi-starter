@@ -6,12 +6,11 @@ on:
     types:
       - completed
 
-env:
-  project: Starter.API
-
 jobs:
   report:
-    name: "publish report (project: ${{ env.project }}, os: ${{ matrix.os }})"
+    name: "publish report (os: ${{ matrix.os }})"
+    env:
+      PROJECT_NAME: Starter.API
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
@@ -22,7 +21,7 @@ jobs:
         run: echo "::set-output name=sha_short::$(echo '${{ github.event.workflow_run.head_sha }}' | cut -c1-7)"
       - uses: dorny/test-reporter@v1
         with:
-          artifact: ${{ env.project }}.Tests-${{ matrix.os }}-${{ steps.vars.outputs.sha_short }}
+          artifact: ${{ env.PROJECT_NAME }}.Tests-${{ matrix.os }}-${{ steps.vars.outputs.sha_short }}
           name: .NET Tests
           path: "*.trx"
           reporter: dotnet-trx

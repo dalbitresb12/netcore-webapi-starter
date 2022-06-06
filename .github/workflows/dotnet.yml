@@ -6,12 +6,11 @@ on:
       - main
   pull_request:
 
-env:
-  PROJECT_NAME: Starter.API
-
 jobs:
   build-test:
-    name: "build and test (project: ${{ env.PROJECT_NAME }}, os: ${{ matrix.os }})"
+    name: "build and test (os: ${{ matrix.os }})"
+    env:
+      PROJECT_NAME: Starter.API
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
