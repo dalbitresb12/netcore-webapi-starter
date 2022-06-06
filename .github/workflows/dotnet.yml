@@ -18,7 +18,7 @@ jobs:
       - name: Get short commit hash
         id: vars
         run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
-      - name: Create body for pull request comment
+      - name: Create body for pull request comment (initial edit)
         id: initial_jsum
         if: github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork
         uses: actions/github-script@v6
@@ -56,7 +56,7 @@ jobs:
       - name: Build
         id: build
         run: dotnet build --no-restore --configuration Release
-      - name: Publish status to job summary
+      - name: Create body for pull request comment (build failed)
         id: fail_jsum
         if: (success() || failure()) && steps.build.outcome != 'success'
         env:
