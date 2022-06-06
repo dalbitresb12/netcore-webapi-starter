@@ -10,7 +10,7 @@ const isValidString = (str) => {
  * @param {string} tag
  * @param {string} content
  * @param {boolean} endTag
- * @param {Record<string, string>} attributes
+ * @param {Record<string, string | number | boolean>} attributes
  * @returns {string}
  */
 const createTag = (tag = "span", content = "", endTag = true, attributes = {}) => {
@@ -36,6 +36,7 @@ const createStrong = (str) => createTag("strong", str);
 /**
  * @param {object} context
  * @param {import("@actions/core")} context.core
+ * @returns {Record<string, unknown>}
  */
 const main = async ({ core }) => {
   const commitSHA = process.env.COMMIT_SHA;
@@ -56,7 +57,7 @@ const main = async ({ core }) => {
   const imgTag = createTag("img", "", false, {
     alt: "Cloudflare Pages",
     src: imgUrl,
-    width: "16"
+    width: 16
   });
   const linkTag = createTag("a", imgTag, true, {
     href: "https://pages.dev/"
@@ -98,7 +99,10 @@ const main = async ({ core }) => {
     summary.addLink("View logs", deploymentLogsUrl);
   }
 
+  const html = summary.stringify();
   await summary.write();
+
+  return { html };
 };
 
 module.exports = main;

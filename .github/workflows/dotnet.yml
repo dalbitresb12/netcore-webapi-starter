@@ -65,6 +65,7 @@ jobs:
           name: ${{ env.PROJECT_NAME }}.Tests-${{ matrix.os }}-${{ steps.vars.outputs.sha_short }}
           path: ${{ env.PROJECT_NAME }}.Tests/TestResults/test-results.trx
       - name: Publish status to job summary
+        id: jsum
         if: success() || failure()
         env:
           COMMIT_SHA: ${{ github.sha }}
@@ -74,4 +75,20 @@ jobs:
         with:
           script: |
             const script = require('./.github/utils/cloudflare-summary.js');
-            await script({ core });
+            return await script({ core });
+      - name: Find previous comment on pull request
+        id: fc
+        if: (success() || failure()) && github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork
+        uses: peter-evans/find-comment@v2
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: dalbitresb12-bot
+          body-includes: Cloudflare Pages
+      - name: Create or update comment on pull request
+        if: (success() || failure()) && github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: ${{ steps.jsum.outputs.result.html }}
+          edit-mode: replace
