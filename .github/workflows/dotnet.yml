@@ -82,11 +82,13 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: dalbitresb12-bot
           body-includes: Cloudflare Pages
+      - name: Print comment body
+        run: echo "${{ steps.jsum.outputs.result }}"
       - name: Create or update comment on pull request
         if: (success() || failure()) && github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork
         uses: peter-evans/create-or-update-comment@v2
         with:
           comment-id: ${{ steps.fc.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
-          body: ${{ steps.jsum.outputs.result.html }}
+          body: ${{ steps.jsum.outputs.result }}
           edit-mode: replace
