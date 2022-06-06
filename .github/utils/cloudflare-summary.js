@@ -77,9 +77,12 @@ const main = async ({ core }) => {
     table[1].push({
       data: "&nbsp;:white_check_mark:&nbsp; Deploy successful!",
     });
+    const deploymentLinkTag = createTag("a", deploymentUrl, true, {
+      href: deploymentUrl,
+    });
     table.push([
       { data: createStrong("Preview URL:") },
-      { data: deploymentUrl },
+      { data: deploymentLinkTag },
     ]);
   } else {
     table[1].push({
