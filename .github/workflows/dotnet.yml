@@ -70,6 +70,7 @@ jobs:
           DEPLOYMENT_URL: ${{ steps.cf_deploy.outputs.url }}
         uses: actions/github-script@v6
         with:
+          result-encoding: string
           script: |
             const script = require('./.github/utils/cloudflare-summary.js');
             return await script({ core });
