@@ -57,6 +57,7 @@ jobs:
           mv LivingDoc.html $LD_TMP_DIR/index.html
           echo "::set-output name=tmp_dir::$LD_TMP_DIR"
       - name: Publish to Cloudflare Pages
+        id: cf_deploy
         if: github.event_name != 'pull_request' || (github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork)
         uses: cloudflare/pages-action@1
         with:
@@ -65,3 +66,13 @@ jobs:
           projectName: ${{ env.CLOUDFLARE_PROJECT_NAME }}
           directory: ${{ steps.vars.livingdoc-output.tmp_dir }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish status to job summary
+        if: success() || failure()
+        env:
+          DEPLOYMENT_ID: ${{ steps.cf_deploy.outputs.id }}
+          DEPLOYMENT_URL: ${{ steps.cf_deploy.outputs.url }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const script = require('./.github/utils/cloudflare-summary.js');
+            await script({ core });

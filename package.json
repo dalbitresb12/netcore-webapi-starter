@@ -1,6 +1,7 @@
 {
   "private": true,
   "devDependencies": {
+    "@actions/core": "^1.8.2",
     "@commitlint/cli": "^17.0.2",
     "@commitlint/config-conventional": "^17.0.2"
   }
