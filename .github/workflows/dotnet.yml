@@ -27,30 +27,28 @@ jobs:
         run: dotnet restore
       - name: Build
         id: build
-        if: steps.restore.outcome == 'success'
         run: dotnet build --no-restore --configuration Release
       - name: Test
         id: test
-        if: steps.build.outcome == 'success'
         run: dotnet test --no-build --verbosity normal --configuration Release --logger "trx;LogFileName=test-results.trx"
       - name: Generate LivingDoc
         id: gen-livingdoc
-        if: steps.build.outcome == 'success'
+        if: (success() || failed()) && steps.build.outcome == 'success'
         run: dotnet livingdoc feature-folder ${{ env.PROJECT_NAME }}.Tests/ -t ${{ env.PROJECT_NAME }}.Tests/bin/Release/net6.0/TestExecution.json
       - name: Upload LivingDoc artifact
-        if: steps.gen-livingdoc.outcome == 'success'
+        if: (success() || failed()) && steps.gen-livingdoc.outcome == 'success'
         uses: actions/upload-artifact@v3
         with:
           name: ${{ env.PROJECT_NAME }}.Tests-LivingDoc-${{ runner.os }}-${{ steps.vars.outputs.sha_short }}
           path: LivingDoc.html
       - name: Move LivingDoc to output directory
-        if: steps.gen-livingdoc.outcome == 'success'
+        if: (success() || failed()) && steps.gen-livingdoc.outcome == 'success'
         run: |
           mkdir dist
           mv LivingDoc.html dist/index.html
       - name: Publish to Cloudflare Pages
         id: cf_deploy
-        if: steps.gen-livingdoc.outcome == 'success' && (github.event_name != 'pull_request' || (github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork))
+        if: (success() || failed()) && steps.gen-livingdoc.outcome == 'success' && (github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork)
         uses: cloudflare/pages-action@1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -60,19 +58,19 @@ jobs:
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload build artifact
         uses: actions/upload-artifact@v3
-        if: steps.build.outcome == 'success'
+        if: (success() || failed()) && steps.build.outcome == 'success'
         with:
           name: ${{ env.PROJECT_NAME }}-Release-${{ runner.os }}-${{ steps.vars.outputs.sha_short }}
           path: ${{ env.PROJECT_NAME }}/bin/Release/net6.0/**
       - name: Upload test results artifact
         uses: actions/upload-artifact@v3
-        if: steps.test.outcome == 'success'
+        if: (success() || failed()) && steps.test.outcome == 'success'
         with:
           name: ${{ env.PROJECT_NAME }}.Tests-${{ runner.os }}-${{ steps.vars.outputs.sha_short }}
           path: ${{ env.PROJECT_NAME }}.Tests/TestResults/test-results.trx
       - name: Publish status to job summary
         id: jsum
-        if: steps.cf_deploy.outcome == 'success'
+        if: (success() || failed()) && steps.cf_deploy.outcome == 'success'
         env:
           COMMIT_SHA: ${{ github.sha }}
           DEPLOYMENT_ID: ${{ steps.cf_deploy.outputs.id }}
@@ -85,14 +83,14 @@ jobs:
             return await script({ core });
       - name: Find previous comment on pull request
         id: fc
-        if: (steps.jsum.outcome == 'success') && github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork
+        if: (success() || failed()) && steps.jsum.outcome == 'success' && github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork
         uses: peter-evans/find-comment@v2
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: dalbitresb12-bot
           body-includes: Cloudflare Pages
       - name: Create or update comment on pull request
-        if: (steps.jsum.outcome == 'success') && github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork
+        if: (success() || failed()) && steps.jsum.outcome == 'success' && github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork
         uses: peter-evans/create-or-update-comment@v2
         with:
           token: ${{ secrets.BOT_PAT }}
