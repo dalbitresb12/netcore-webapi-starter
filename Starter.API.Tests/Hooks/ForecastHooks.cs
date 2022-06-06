@@ -28,7 +28,7 @@ public class ForecastHooks {
     var repository = factory.Services.GetService(typeof(IForecastRepository)) as IForecastRepository;
     objectContainer.RegisterInstanceAs(repository);
     var unitOfWork = factory.Services.GetService(typeof(IUnitOfWork)) as IUnitOfWork;
-    objectContainer.RegisterInstanceAs(unitOfWork);dawda;
+    objectContainer.RegisterInstanceAs(unitOfWork);
   }
 
   [BeforeTestRun]
