@@ -10,10 +10,9 @@ jobs:
   build-test:
     name: "build and test"
     env:
-      OS: ubuntu-latest
       PROJECT_NAME: Starter.API
       CLOUDFLARE_PROJECT_NAME: netcore-webapi-starter-livingdoc
-    runs-on: ${{ env.OS }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Get short commit hash
@@ -34,7 +33,7 @@ jobs:
       - name: Upload LivingDoc artifact
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.PROJECT_NAME }}.Tests-LivingDoc-${{ env.OS }}-${{ steps.vars.outputs.sha_short }}
+          name: ${{ env.PROJECT_NAME }}.Tests-LivingDoc-${{ runner.os }}-${{ steps.vars.outputs.sha_short }}
           path: LivingDoc.html
       - name: Move LivingDoc to output directory
         run: |
@@ -54,13 +53,13 @@ jobs:
         uses: actions/upload-artifact@v3
         if: success() || failure()
         with:
-          name: ${{ env.PROJECT_NAME }}-Release-${{ env.OS }}-${{ steps.vars.outputs.sha_short }}
+          name: ${{ env.PROJECT_NAME }}-Release-${{ runner.os }}-${{ steps.vars.outputs.sha_short }}
           path: ${{ env.PROJECT_NAME }}/bin/Release/net6.0/**
       - name: Upload test results artifact
         uses: actions/upload-artifact@v3
         if: success() || failure()
         with:
-          name: ${{ env.PROJECT_NAME }}.Tests-${{ env.OS }}-${{ steps.vars.outputs.sha_short }}
+          name: ${{ env.PROJECT_NAME }}.Tests-${{ runner.os }}-${{ steps.vars.outputs.sha_short }}
           path: ${{ env.PROJECT_NAME }}.Tests/TestResults/test-results.trx
       - name: Publish status to job summary
         id: jsum
