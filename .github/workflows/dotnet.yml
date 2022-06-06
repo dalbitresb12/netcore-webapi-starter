@@ -42,3 +42,10 @@ jobs:
         with:
           name: ${{ env.PROJECT_NAME }}.Tests-${{ matrix.os }}-${{ steps.vars.outputs.sha_short }}
           path: ${{ env.PROJECT_NAME }}.Tests/TestResults/test-results.trx
+      - name: Generate Livingdoc
+        run: dotnet livingdoc feature-folder ${{ env.PROJECT_NAME }}.Tests/ -t ${{ env.PROJECT_NAME }}.Tests/bin/Release/net6.0/TestExecution.json
+      - name: Upload LivingDoc artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.PROJECT_NAME }}.Tests-LivingDoc-${{ matrix.os }}-${{ steps.vars.outputs.sha_short }}
+          path: LivingDoc.html

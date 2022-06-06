@@ -1,0 +1,44 @@
+name: LivingDoc
+
+on:
+  workflow_run:
+    workflows: [".NET"]
+    types:
+      - completed
+
+jobs:
+  deploy-livingdoc:
+    name: "deploy LivingDoc (os: ${{ matrix.os }})"
+    env:
+      PROJECT_NAME: Starter.API
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - name: Create working directory
+        run: cd $(mktemp -d)
+      - name: Get short commit hash
+        id: vars
+        run: echo "::set-output name=sha_short::$(echo '${{ github.event.workflow_run.head_sha }}' | cut -c1-7)"
+      - name: Download LivingDoc artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.PROJECT_NAME }}.Tests-LivingDoc-${{ matrix.os }}-${{ steps.vars.outputs.sha_short }}
+      - name: Check if LivingDoc.html file exists
+        run: ls LivingDoc.html
+      - name: Move file to output directory
+        run: |
+          mkdir dist
+          mv LivingDoc.html dist/index.html
+      - name: Publish to Cloudflare Pages
+        uses: cloudflare/pages-action@1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ${{ secrets.CLOUDFLARE_PROJECT_NAME }}
+          directory: dist
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
