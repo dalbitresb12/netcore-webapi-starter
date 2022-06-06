@@ -116,6 +116,7 @@ const createTestsText = (testReport) => {
 /**
  * @typedef DiagnosticInfo
  * @property {string} commitSHA
+ * @property {string} eventName
  * @property {TestReport} testReport
  * @property {CloudflareDeployment} deployment
  */
@@ -146,6 +147,8 @@ const main = async ({ core }) => {
     throw new Error(`Invalid project name, received ${projectName}`);
   }
 
+  /** @type {"pull_request" | "push"} */
+  const eventName = process.env.EVENT_NAME;
   const isInitialEdit = process.env.IS_INITIAL_EDIT === "true";
 
   const testReport = JSON.parse(process.env.TEST_REPORT || "{}");
@@ -215,8 +218,9 @@ const main = async ({ core }) => {
 
   summary
     .addSeparator()
-    .addDetails("Diagnostic Information: What the bot saw about this PR", createDiagnostic({
+    .addDetails(`Diagnostic Information: What the bot saw about this commit`, createDiagnostic({
       commitSHA,
+      eventName,
       deployment: {
         id: deploymentId,
         projectName,

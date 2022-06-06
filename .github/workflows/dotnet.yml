@@ -24,6 +24,7 @@ jobs:
         uses: actions/github-script@v6
         env:
           COMMIT_SHA: ${{ github.sha }}
+          EVENT_NAME: ${{ github.event_name }}
         with:
           result-encoding: string
           script: |
@@ -110,6 +111,7 @@ jobs:
         env:
           TEST_REPORT: '{"conclusion":"${{ steps.trep.outputs.conclusion }}","passed":${{ steps.trep.outputs.passed }},"failed":${{ steps.trep.outputs.failed }},"skipped":${{ steps.trep.outputs.skipped }},"time":${{ steps.trep.outputs.time }}}'
           COMMIT_SHA: ${{ github.sha }}
+          EVENT_NAME: ${{ github.event_name }}
           DEPLOYMENT_ID: ${{ steps.cf_deploy.outputs.id }}
           DEPLOYMENT_URL: ${{ steps.cf_deploy.outputs.url }}
         uses: actions/github-script@v6
