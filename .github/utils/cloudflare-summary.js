@@ -82,7 +82,7 @@ const createTestsBadge = (testReport) => {
   if (conclusion === "success") {
     return `https://img.shields.io/badge/tests-${passed}%20passed-brightgreen`;
   }
-  return `https://img.shields.io/badge/tests-${passed}%20passed-red;`;
+  return `https://img.shields.io/badge/tests-${passed}%20passed-red`;
 };
 
 /**
