@@ -136,5 +136,5 @@ jobs:
           token: ${{ secrets.BOT_PAT }}
           comment-id: ${{ steps.fc.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
-          body: ${{ steps.jsum.outputs.result }}
+          body: ${{ steps.jsum.outputs.result || steps.fail_jsum.outputs.result }}
           edit-mode: replace
