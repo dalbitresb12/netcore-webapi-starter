@@ -115,8 +115,7 @@ const createTestsText = (testReport) => {
 
 /**
  * @typedef DiagnosticInfo
- * @property {string} commitSHA
- * @property {string} eventName
+ * @property {import("@actions/github/lib/context").Context} context
  * @property {TestReport} testReport
  * @property {CloudflareDeployment} deployment
  */
@@ -133,11 +132,12 @@ const createDiagnostic = (info) => {
 
 /**
  * @param {object} context
+ * @param {import("@actions/github/lib/context").Context} context.context
  * @param {import("@actions/core")} context.core
  * @returns {string}
  */
-const main = async ({ core }) => {
-  const commitSHA = process.env.COMMIT_SHA;
+const main = async ({ context, core }) => {
+  const commitSHA = context.sha;
   if (!isValidString(commitSHA)) {
     throw new Error(`Invalid commit SHA, received: ${commitSHA}`);
   }
@@ -147,8 +147,6 @@ const main = async ({ core }) => {
     throw new Error(`Invalid project name, received ${projectName}`);
   }
 
-  /** @type {"pull_request" | "push"} */
-  const eventName = process.env.EVENT_NAME;
   const isInitialEdit = process.env.IS_INITIAL_EDIT === "true";
 
   const testReport = JSON.parse(process.env.TEST_REPORT || "{}");
@@ -219,8 +217,7 @@ const main = async ({ core }) => {
   summary
     .addSeparator()
     .addDetails(`Diagnostic Information: What the bot saw about this commit`, createDiagnostic({
-      commitSHA,
-      eventName,
+      context,
       deployment: {
         id: deploymentId,
         projectName,

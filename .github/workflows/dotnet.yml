@@ -22,9 +22,6 @@ jobs:
         id: initial_jsum
         if: github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork
         uses: actions/github-script@v6
-        env:
-          COMMIT_SHA: ${{ github.sha }}
-          EVENT_NAME: ${{ github.event_name }}
         with:
           result-encoding: string
           script: |
@@ -110,8 +107,6 @@ jobs:
         if: (success() || failure()) && steps.cf_deploy.outcome == 'success'
         env:
           TEST_REPORT: '{"conclusion":"${{ steps.trep.outputs.conclusion }}","passed":${{ steps.trep.outputs.passed }},"failed":${{ steps.trep.outputs.failed }},"skipped":${{ steps.trep.outputs.skipped }},"time":${{ steps.trep.outputs.time }}}'
-          COMMIT_SHA: ${{ github.sha }}
-          EVENT_NAME: ${{ github.event_name }}
           DEPLOYMENT_ID: ${{ steps.cf_deploy.outputs.id }}
           DEPLOYMENT_URL: ${{ steps.cf_deploy.outputs.url }}
         uses: actions/github-script@v6
@@ -119,7 +114,7 @@ jobs:
           result-encoding: string
           script: |
             const script = require('./.github/utils/cloudflare-summary.js');
-            return await script({ core });
+            return await script({ context, core });
       - name: Create or update comment on pull request
         if: (success() || failure()) && steps.jsum.outcome == 'success' && github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork
         uses: peter-evans/create-or-update-comment@v2
