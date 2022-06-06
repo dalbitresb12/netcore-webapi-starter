@@ -36,7 +36,7 @@ const createStrong = (str) => createTag("strong", str);
 /**
  * @param {object} context
  * @param {import("@actions/core")} context.core
- * @returns {Record<string, unknown>}
+ * @returns {string}
  */
 const main = async ({ core }) => {
   const commitSHA = process.env.COMMIT_SHA;
@@ -102,7 +102,7 @@ const main = async ({ core }) => {
   const html = summary.stringify();
   await summary.write();
 
-  return { html };
+  return html;
 };
 
 module.exports = main;
