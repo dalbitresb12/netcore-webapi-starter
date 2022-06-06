@@ -229,9 +229,9 @@ const main = async ({ core }) => {
   const html = summary.stringify();
 
   if (isInitialEdit) {
-    await summary.write();
-  } else {
     await summary.emptyBuffer().clear();
+  } else {
+    await summary.write();
   }
 
   return html;
