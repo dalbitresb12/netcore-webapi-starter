@@ -78,11 +78,11 @@ const validateTestReport = (value) => {
  * @returns {string}
  */
 const createTestsBadge = (testReport) => {
-  const { conclusion, passed } = testReport;
+  const { conclusion, passed, failed } = testReport;
   if (conclusion === "success") {
     return `https://img.shields.io/badge/tests-${passed}%20passed-brightgreen`;
   }
-  return `https://img.shields.io/badge/tests-${passed}%20passed-red`;
+  return `https://img.shields.io/badge/tests-${passed}%20passed,%20${failed}%20failed-red`;
 };
 
 /**
@@ -202,7 +202,10 @@ const main = async ({ context, core }) => {
   if (validateTestReport(testReport) && !isInitialEdit) {
     summary
       .addHeading(`Test Results ${spacing(testReport.conclusion === "success" ? emojis.check : emojis.times)}`, 2)
-      .addImage(createTestsBadge(testReport), `Tests: ${testReport.passed} passed`)
+      .addImage(
+        createTestsBadge(testReport),
+        `Tests: ${testReport.passed} passed${testReport.conclusion !== "success" ? `, ${testReport.failed} failed` : ''}`
+      )
       .addRaw(createTestsText(testReport))
   }
 
