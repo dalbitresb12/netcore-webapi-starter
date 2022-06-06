@@ -29,20 +29,8 @@ jobs:
         run: dotnet restore
       - name: Build
         run: dotnet build --no-restore --configuration Release
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v3
-        if: success() || failure()
-        with:
-          name: ${{ env.PROJECT_NAME }}-Release-${{ matrix.os }}-${{ steps.vars.outputs.sha_short }}
-          path: ${{ env.PROJECT_NAME }}/bin/Release/net6.0/**
       - name: Test
         run: dotnet test --no-build --verbosity normal --configuration Release --logger "trx;LogFileName=test-results.trx"
-      - name: Upload test results artifact
-        uses: actions/upload-artifact@v3
-        if: success() || failure()
-        with:
-          name: ${{ env.PROJECT_NAME }}.Tests-${{ matrix.os }}-${{ steps.vars.outputs.sha_short }}
-          path: ${{ env.PROJECT_NAME }}.Tests/TestResults/test-results.trx
       - name: Generate LivingDoc
         run: dotnet livingdoc feature-folder ${{ env.PROJECT_NAME }}.Tests/ -t ${{ env.PROJECT_NAME }}.Tests/bin/Release/net6.0/TestExecution.json
       - name: Upload LivingDoc artifact
@@ -64,6 +52,18 @@ jobs:
           projectName: ${{ env.CLOUDFLARE_PROJECT_NAME }}
           directory: dist
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v3
+        if: success() || failure()
+        with:
+          name: ${{ env.PROJECT_NAME }}-Release-${{ matrix.os }}-${{ steps.vars.outputs.sha_short }}
+          path: ${{ env.PROJECT_NAME }}/bin/Release/net6.0/**
+      - name: Upload test results artifact
+        uses: actions/upload-artifact@v3
+        if: success() || failure()
+        with:
+          name: ${{ env.PROJECT_NAME }}.Tests-${{ matrix.os }}-${{ steps.vars.outputs.sha_short }}
+          path: ${{ env.PROJECT_NAME }}.Tests/TestResults/test-results.trx
       - name: Publish status to job summary
         if: success() || failure()
         env:
