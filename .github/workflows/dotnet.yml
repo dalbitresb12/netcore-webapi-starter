@@ -64,7 +64,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: ${{ env.CLOUDFLARE_PROJECT_NAME }}
-          directory: ${{ steps.vars.livingdoc-output.tmp_dir }}
+          directory: ${{ steps.livingdoc-output.outputs.tmp_dir }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish status to job summary
         if: success() || failure()
