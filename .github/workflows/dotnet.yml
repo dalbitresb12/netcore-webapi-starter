@@ -6,10 +6,16 @@ on:
       - main
   pull_request:
 
+env:
+  project: Starter.API
+
 jobs:
   build-test:
-    name: 'build and test (os: ubuntu-latest)'
-    runs-on: ubuntu-latest
+    name: 'build and test (project: ${{ env.project }}, os: ${{ matrix.os }})'
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
       - name: Setup .NET
@@ -22,3 +28,11 @@ jobs:
         run: dotnet build --no-restore --configuration Release
       - name: Test
         run: dotnet test --no-build --verbosity normal --configuration Release
+      - name: Get short commit hash
+        id: vars
+        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Starter.API-Release-${{ matrix.os }}-${{ steps.vars.outputs.sha_short }}
+          path: ${{ env.project }}/bin/Release/net6.0/**
