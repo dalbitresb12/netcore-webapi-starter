@@ -51,11 +51,9 @@ jobs:
           name: ${{ env.PROJECT_NAME }}.Tests-LivingDoc-${{ matrix.os }}-${{ steps.vars.outputs.sha_short }}
           path: LivingDoc.html
       - name: Move LivingDoc to output directory
-        id: livingdoc-output
         run: |
-          LD_TMP_DIR=$(mktemp -d)
-          mv LivingDoc.html $LD_TMP_DIR/index.html
-          echo "::set-output name=tmp_dir::$LD_TMP_DIR"
+          mkdir dist
+          mv LivingDoc.html dist/index.html
       - name: Publish to Cloudflare Pages
         id: cf_deploy
         if: github.event_name != 'pull_request' || (github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork)
@@ -64,7 +62,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: ${{ env.CLOUDFLARE_PROJECT_NAME }}
-          directory: ${{ steps.livingdoc-output.outputs.tmp_dir }}
+          directory: dist
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish status to job summary
         if: success() || failure()
