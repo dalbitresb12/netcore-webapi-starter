@@ -11,6 +11,7 @@ jobs:
     name: "build and test (os: ${{ matrix.os }})"
     env:
       PROJECT_NAME: Starter.API
+      CLOUDFLARE_PROJECT_NAME: netcore-webapi-starter-livingdoc
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
@@ -50,15 +51,17 @@ jobs:
           name: ${{ env.PROJECT_NAME }}.Tests-LivingDoc-${{ matrix.os }}-${{ steps.vars.outputs.sha_short }}
           path: LivingDoc.html
       - name: Move LivingDoc to output directory
+        id: livingdoc-output
         run: |
-          mkdir dist
-          mv LivingDoc.html dist/index.html
+          LD_TMP_DIR=$(mktemp -d)
+          mv LivingDoc.html $LD_TMP_DIR/index.html
+          echo "::set-output name=tmp_dir::$LD_TMP_DIR"
       - name: Publish to Cloudflare Pages
         if: github.event_name != 'pull_request' || (github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork)
         uses: cloudflare/pages-action@1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: ${{ secrets.CLOUDFLARE_PROJECT_NAME }}
-          directory: dist
+          projectName: ${{ env.CLOUDFLARE_PROJECT_NAME }}
+          directory: ${{ steps.vars.livingdoc-output.tmp_dir }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
