@@ -22,6 +22,8 @@ jobs:
         id: initial_jsum
         if: github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork
         uses: actions/github-script@v6
+        env:
+          IS_INITIAL_EDIT: true
         with:
           result-encoding: string
           script: |

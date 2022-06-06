@@ -82,7 +82,7 @@ const createTestsBadge = (testReport) => {
   if (conclusion === "success") {
     return `https://img.shields.io/badge/tests-${passed}%20passed-brightgreen`;
   }
-  return `https://img.shields.io/badge/tests-${passed}%20passed-red;`;
+  return `https://img.shields.io/badge/tests-${passed}%20passed-red`;
 };
 
 /**
@@ -115,9 +115,9 @@ const createTestsText = (testReport) => {
 
 /**
  * @typedef DiagnosticInfo
- * @property {import("@actions/github/lib/context").Context} context
  * @property {TestReport} testReport
  * @property {CloudflareDeployment} deployment
+ * @property {import("@actions/github/lib/context").Context} context
  */
 
 /**
@@ -217,14 +217,14 @@ const main = async ({ context, core }) => {
   summary
     .addSeparator()
     .addDetails(`Diagnostic Information: What the bot saw about this commit`, createDiagnostic({
-      context,
+      testReport,
       deployment: {
         id: deploymentId,
         projectName,
         url: deploymentUrl,
         logsUrl: deploymentLogsUrl,
       },
-      testReport
+      context,
     }));
 
   const html = summary.stringify();
