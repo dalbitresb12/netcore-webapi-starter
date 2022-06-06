@@ -22,13 +22,13 @@ const createTag = (tag = "span", content = "", endTag = true, attributes = {}) =
  * @param {string} str
  * @returns {string}
  */
-const createCode = (str) => createTag("code", str);
+const codeblock = (str) => createTag("code", str);
 
 /**
  * @param {string} str
  * @returns {string}
  */
-const createStrong = (str) => createTag("strong", str);
+const bold = (str) => createTag("strong", str);
 
 const emojis = {
   build: {
@@ -102,7 +102,7 @@ const pluralize = (value, word, pluralization) => {
 const createTestsText = (testReport) => {
   const { passed, failed, skipped, time } = testReport;
   const total = passed + failed + skipped;
-  return `${total} ${pluralize(total, 'test', 's')} were completed in ${time}ms, with ${passed} passed, ${failed} failed and ${skipped} skipped.`;
+  return `${bold(total)} ${pluralize(total, 'test', 's')} were completed in ${bold(time + 'ms')}, with ${bold(passed)} passed, ${bold(failed)} failed and ${bold(skipped)} skipped.`;
 };
 
 /**
@@ -126,7 +126,7 @@ const createTestsText = (testReport) => {
  */
 const createDiagnostic = (info) => {
   const text = JSON.stringify(info, null, 2);
-  const code = createTag("code", text);
+  const code = codeblock(text);
   return createTag("pre", code, true, { lang: 'json' });
 }
 
@@ -167,11 +167,11 @@ const main = async ({ core }) => {
   /** @type {import("@actions/core/lib/summary").SummaryTableRow[]} */
   const table = [
     [
-      { data: createStrong("Latest commit:") },
-      { data: createCode(commitSHA.substring(0, 7)) },
+      { data: bold("Latest commit:") },
+      { data: codeblock(commitSHA.substring(0, 7)) },
     ],
     [
-      { data: createStrong("Status:") },
+      { data: bold("Status:") },
     ],
   ];
 
@@ -183,7 +183,7 @@ const main = async ({ core }) => {
       href: deploymentUrl,
     });
     table.push([
-      { data: createStrong("Preview URL:") },
+      { data: bold("Preview URL:") },
       { data: deploymentLinkTag },
     ]);
   } else if (isInitialEdit) {
