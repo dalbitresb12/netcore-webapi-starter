@@ -14,29 +14,27 @@ const isValidString = (str) => {
  * @returns {string}
  */
 const createTag = (tag = "span", content = "", endTag = true, attributes = {}) => {
-  const encoded = Object.keys(attributes).reduce((acc, key) => {
-    acc += ` ${key}="${attributes[key]}"`;
-    return acc;
-  }, "");
-  return `<${tag}${encoded}>${content}${endTag ? `</${tag}>` : ''}`;
+  const attrs = Object.entries(attributes).map(([key, value]) => ` ${key}="${value}"`).join('');
+  return `<${tag}${attrs}>${content}${endTag ? `</${tag}>` : ''}`;
 };
 
 /**
  * @param {string} str
  * @returns {string}
  */
-const createCode = (str) => createTag("code", str);
+const codeblock = (str) => createTag("code", str);
 
 /**
  * @param {string} str
  * @returns {string}
  */
-const createStrong = (str) => createTag("strong", str);
+const bold = (str) => createTag("strong", str);
 
 const emojis = {
   build: {
     success: ':white_check_mark:',
     failed: ':no_entry_sign:',
+    progress: ':zap:'
   },
   check: ':heavy_check_mark:',
   times: ':x:',
@@ -104,16 +102,42 @@ const pluralize = (value, word, pluralization) => {
 const createTestsText = (testReport) => {
   const { passed, failed, skipped, time } = testReport;
   const total = passed + failed + skipped;
-  return `${total} ${pluralize(total, 'test', 's')} were completed in ${time}ms, with ${passed} passed, ${failed} failed and ${skipped} skipped.`;
+  return `${bold(total)} ${pluralize(total, 'test', 's')} were completed in ${bold(time + 'ms')}, with ${bold(passed)} passed, ${bold(failed)} failed and ${bold(skipped)} skipped.`;
 };
 
 /**
+ * @typedef CloudflareDeployment
+ * @property {string} id
+ * @property {string} projectName
+ * @property {string} url
+ * @property {string} logsUrl
+ */
+
+/**
+ * @typedef DiagnosticInfo
+ * @property {import("@actions/github/lib/context").Context} context
+ * @property {TestReport} testReport
+ * @property {CloudflareDeployment} deployment
+ */
+
+/**
+ * @param {DiagnosticInfo} info
+ * @returns {string}
+ */
+const createDiagnostic = (info) => {
+  const text = JSON.stringify(info, null, 2);
+  const code = codeblock(text);
+  return createTag("pre", code, true, { lang: 'json' });
+}
+
+/**
  * @param {object} context
+ * @param {import("@actions/github/lib/context").Context} context.context
  * @param {import("@actions/core")} context.core
  * @returns {string}
  */
-const main = async ({ core }) => {
-  const commitSHA = process.env.COMMIT_SHA;
+const main = async ({ context, core }) => {
+  const commitSHA = context.sha;
   if (!isValidString(commitSHA)) {
     throw new Error(`Invalid commit SHA, received: ${commitSHA}`);
   }
@@ -123,10 +147,9 @@ const main = async ({ core }) => {
     throw new Error(`Invalid project name, received ${projectName}`);
   }
 
+  const isInitialEdit = process.env.IS_INITIAL_EDIT === "true";
+
   const testReport = JSON.parse(process.env.TEST_REPORT || "{}");
-  if (!validateTestReport(testReport)) {
-    throw new Error(`Invalid test report, received ${testReport}`);
-  }
 
   const deploymentId = process.env.DEPLOYMENT_ID;
   const deploymentUrl = process.env.DEPLOYMENT_URL;
@@ -145,11 +168,11 @@ const main = async ({ core }) => {
   /** @type {import("@actions/core/lib/summary").SummaryTableRow[]} */
   const table = [
     [
-      { data: createStrong("Latest commit:") },
-      { data: createCode(commitSHA.substring(0, 7)) },
+      { data: bold("Latest commit:") },
+      { data: codeblock(commitSHA.substring(0, 7)) },
     ],
     [
-      { data: createStrong("Status:") },
+      { data: bold("Status:") },
     ],
   ];
 
@@ -161,19 +184,29 @@ const main = async ({ core }) => {
       href: deploymentUrl,
     });
     table.push([
-      { data: createStrong("Preview URL:") },
+      { data: bold("Preview URL:") },
       { data: deploymentLinkTag },
     ]);
+  } else if (isInitialEdit) {
+    table[1].push({
+      data: `${spacing(emojis.build.progress)} Build in progress...`,
+    });
   } else {
     table[1].push({
       data: `${spacing(emojis.build.failed)} Build failed.`,
     });
   }
 
-  const summary = core.summary
-    .addHeading(`Test Results ${spacing(testReport.conclusion === "success" ? emojis.check : emojis.times)}`, 2)
-    .addImage(createTestsBadge(testReport), `Tests: ${testReport.passed} passed`)
-    .addRaw(createTestsText(testReport))
+  const summary = core.summary;
+
+  if (validateTestReport(testReport) && !isInitialEdit) {
+    summary
+      .addHeading(`Test Results ${spacing(testReport.conclusion === "success" ? emojis.check : emojis.times)}`, 2)
+      .addImage(createTestsBadge(testReport), `Tests: ${testReport.passed} passed`)
+      .addRaw(createTestsText(testReport))
+  }
+
+  summary
     .addHeading(`Deploying LivingDoc with ${spacing(linkTag)} Cloudflare Pages`, 2)
     .addTable(table);
 
@@ -181,8 +214,26 @@ const main = async ({ core }) => {
     summary.addLink("View logs", deploymentLogsUrl);
   }
 
+  summary
+    .addSeparator()
+    .addDetails(`Diagnostic Information: What the bot saw about this commit`, createDiagnostic({
+      context,
+      deployment: {
+        id: deploymentId,
+        projectName,
+        url: deploymentUrl,
+        logsUrl: deploymentLogsUrl,
+      },
+      testReport
+    }));
+
   const html = summary.stringify();
-  await summary.write();
+
+  if (isInitialEdit) {
+    await summary.emptyBuffer().clear();
+  } else {
+    await summary.write();
+  }
 
   return html;
 };
