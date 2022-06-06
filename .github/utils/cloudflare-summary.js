@@ -108,6 +108,31 @@ const createTestsText = (testReport) => {
 };
 
 /**
+ * @typedef CloudflareDeployment
+ * @property {string} id
+ * @property {string} projectName
+ * @property {string} url
+ * @property {string} logsUrl
+ */
+
+/**
+ * @typedef DiagnosticInfo
+ * @property {string} commitSHA
+ * @property {TestReport} testReport
+ * @property {CloudflareDeployment} deployment
+ */
+
+/**
+ * @param {DiagnosticInfo} info
+ * @returns {string}
+ */
+const createDiagnostic = (info) => {
+  const text = JSON.stringify(info, null, 2);
+  const code = createTag("code", text);
+  return createTag("pre", code, true, { lang: 'json' });
+}
+
+/**
  * @param {object} context
  * @param {import("@actions/core")} context.core
  * @returns {string}
@@ -180,6 +205,19 @@ const main = async ({ core }) => {
   if (isValidString(deploymentId)) {
     summary.addLink("View logs", deploymentLogsUrl);
   }
+
+  summary
+    .addSeparator()
+    .addDetails("Diagnostic Information: What the bot saw about this PR", createDiagnostic({
+      commitSHA,
+      deployment: {
+        id: deploymentId,
+        projectName,
+        url: deploymentUrl,
+        logsUrl: deploymentLogsUrl,
+      },
+      testReport
+    }));
 
   const html = summary.stringify();
   await summary.write();
