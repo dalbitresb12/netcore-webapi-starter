@@ -56,17 +56,6 @@ jobs:
       - name: Build
         id: build
         run: dotnet build --no-restore --configuration Release
-      - name: Create body for pull request comment (build failed)
-        id: fail_jsum
-        if: (success() || failure()) && steps.build.outcome != 'success'
-        env:
-          BUILD_FAILED: true
-        uses: actions/github-script@v6
-        with:
-          result-encoding: string
-          script: |
-            const script = require('./.github/utils/cloudflare-summary.js');
-            return await script({ context, core });
       - name: Test
         id: test
         run: dotnet test --no-build --verbosity normal --configuration Release --logger "trx;LogFileName=test-results.trx"
@@ -116,13 +105,24 @@ jobs:
           path: ${{ env.PROJECT_NAME }}.Tests/TestResults/test-results.trx
           reporter: dotnet-trx
           fail-on-error: 'false'
-      - name: Publish status to job summary
+      - name: Publish status to job summary and create pull request comment
         id: jsum
         if: (success() || failure()) && steps.cf_deploy.outcome == 'success'
         env:
           TEST_REPORT: '{"conclusion":"${{ steps.trep.outputs.conclusion }}","passed":${{ steps.trep.outputs.passed }},"failed":${{ steps.trep.outputs.failed }},"skipped":${{ steps.trep.outputs.skipped }},"time":${{ steps.trep.outputs.time }}}'
           DEPLOYMENT_ID: ${{ steps.cf_deploy.outputs.id }}
           DEPLOYMENT_URL: ${{ steps.cf_deploy.outputs.url }}
+        uses: actions/github-script@v6
+        with:
+          result-encoding: string
+          script: |
+            const script = require('./.github/utils/cloudflare-summary.js');
+            return await script({ context, core });
+      - name: Publish status to job summary and create pull request comment (build failed)
+        id: fail_jsum
+        if: failure() || steps.cf_deploy.outcome != 'success'
+        env:
+          BUILD_FAILED: true
         uses: actions/github-script@v6
         with:
           result-encoding: string
