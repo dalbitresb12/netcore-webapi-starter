@@ -115,7 +115,7 @@ jobs:
           COMMIT_SHA: ${{ needs.vars.outputs.run_info.sourceHeadSha }}
           TEST_REPORT: ${{ needs.publish_report.outputs.report }}
           CLOUDFLARE: ${{ needs.livingdoc-deploy.outputs.deployment }}
-          BUILD_FAILED: ${{ github.event.workflow_run.conclusion == "failure" }}
+          BUILD_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
         uses: actions/github-script@v6
         with:
           result-encoding: string

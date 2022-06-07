@@ -149,7 +149,7 @@ const main = async ({ context, core }) => {
   }
 
   const isInitialEdit = process.env.IS_INITIAL_EDIT === "true";
-  const buildFailed = process.env.BUILD_FAILED === "true";
+  const buildFailed = process.env.BUILD_CONCLUSION === "failed";
 
   const testReport = JSON.parse(process.env.TEST_REPORT || "{}");
 
