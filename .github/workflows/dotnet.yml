@@ -18,34 +18,6 @@ jobs:
       - name: Get short commit hash
         id: vars
         run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
-      - name: Create body for pull request comment (initial edit)
-        id: initial_jsum
-        if: github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork
-        uses: actions/github-script@v6
-        env:
-          IS_INITIAL_EDIT: true
-        with:
-          result-encoding: string
-          script: |
-            const script = require('./.github/utils/cloudflare-summary.js');
-            return await script({ context, core });
-      - name: Find previous comment on pull request
-        id: fc
-        if: github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork
-        uses: peter-evans/find-comment@v2
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          comment-author: dalbitresb12-bot
-          body-includes: Cloudflare Pages
-      - name: Create or update comment on pull request
-        if: github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork
-        uses: peter-evans/create-or-update-comment@v2
-        with:
-          token: ${{ secrets.BOT_PAT }}
-          comment-id: ${{ steps.fc.outputs.comment-id }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body: ${{ steps.initial_jsum.outputs.result }}
-          edit-mode: replace
       - name: Setup .NET
         uses: actions/setup-dotnet@v2
         with:
@@ -63,27 +35,6 @@ jobs:
         id: gen-livingdoc
         if: (success() || failure()) && steps.build.outcome == 'success'
         run: dotnet livingdoc feature-folder ${{ env.PROJECT_NAME }}.Tests/ -t ${{ env.PROJECT_NAME }}.Tests/bin/Release/net6.0/TestExecution.json
-      - name: Upload LivingDoc artifact
-        if: (success() || failure()) && steps.gen-livingdoc.outcome == 'success'
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ env.PROJECT_NAME }}.Tests-LivingDoc-${{ runner.os }}-${{ steps.vars.outputs.sha_short }}
-          path: LivingDoc.html
-      - name: Move LivingDoc to output directory
-        if: (success() || failure()) && steps.gen-livingdoc.outcome == 'success'
-        run: |
-          mkdir dist
-          mv LivingDoc.html dist/index.html
-      - name: Publish to Cloudflare Pages
-        id: cf_deploy
-        if: (success() || failure()) && steps.gen-livingdoc.outcome == 'success' && (github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork)
-        uses: cloudflare/pages-action@1
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: ${{ env.CLOUDFLARE_PROJECT_NAME }}
-          directory: dist
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload build artifact
         uses: actions/upload-artifact@v3
         if: (success() || failure()) && steps.build.outcome == 'success'
@@ -96,45 +47,9 @@ jobs:
         with:
           name: ${{ env.PROJECT_NAME }}.Tests-${{ runner.os }}-${{ steps.vars.outputs.sha_short }}
           path: ${{ env.PROJECT_NAME }}.Tests/TestResults/test-results.trx
-      - name: Publish test report
-        id: trep
-        if: (success() || failure()) && steps.build.outcome == 'success'
-        uses: dorny/test-reporter@v1
+      - name: Upload LivingDoc artifact
+        if: (success() || failure()) && steps.gen-livingdoc.outcome == 'success'
+        uses: actions/upload-artifact@v3
         with:
-          name: Test Results
-          path: ${{ env.PROJECT_NAME }}.Tests/TestResults/test-results.trx
-          reporter: dotnet-trx
-          fail-on-error: 'false'
-      - name: Publish status to job summary and create pull request comment
-        id: jsum
-        if: (success() || failure()) && steps.cf_deploy.outcome == 'success'
-        env:
-          TEST_REPORT: '{"conclusion":"${{ steps.trep.outputs.conclusion }}","passed":${{ steps.trep.outputs.passed }},"failed":${{ steps.trep.outputs.failed }},"skipped":${{ steps.trep.outputs.skipped }},"time":${{ steps.trep.outputs.time }}}'
-          DEPLOYMENT_ID: ${{ steps.cf_deploy.outputs.id }}
-          DEPLOYMENT_URL: ${{ steps.cf_deploy.outputs.url }}
-        uses: actions/github-script@v6
-        with:
-          result-encoding: string
-          script: |
-            const script = require('./.github/utils/cloudflare-summary.js');
-            return await script({ context, core });
-      - name: Publish status to job summary and create pull request comment (build failed)
-        id: fail_jsum
-        if: failure() || steps.cf_deploy.outcome != 'success'
-        env:
-          BUILD_FAILED: true
-        uses: actions/github-script@v6
-        with:
-          result-encoding: string
-          script: |
-            const script = require('./.github/utils/cloudflare-summary.js');
-            return await script({ context, core });
-      - name: Create or update comment on pull request
-        if: (success() || failure()) && (steps.jsum.outcome == 'success' || steps.fail_jsum.outcome == 'success') && github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork
-        uses: peter-evans/create-or-update-comment@v2
-        with:
-          token: ${{ secrets.BOT_PAT }}
-          comment-id: ${{ steps.fc.outputs.comment-id }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body: ${{ steps.jsum.outputs.result || steps.fail_jsum.outputs.result }}
-          edit-mode: replace
+          name: ${{ env.PROJECT_NAME }}.Tests-LivingDoc-${{ runner.os }}-${{ steps.vars.outputs.sha_short }}
+          path: LivingDoc.html
