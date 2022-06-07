@@ -63,6 +63,10 @@ const validateTestReport = (value) => {
   try {
     if (typeof value !== "object") return false;
     if (typeof value.conclusion !== "string") return false;
+    for (const key of ["passed", "failed", "skipped", "time"]) {
+      value[key] = Number(value[key]);
+      if (!Number.isInteger(value[key])) return false;
+    }
     if (typeof value.passed !== "number") return false;
     if (typeof value.failed !== "number") return false;
     if (typeof value.skipped !== "number") return false;
@@ -118,6 +122,7 @@ const createTestsText = (testReport) => {
  * @typedef DiagnosticInfo
  * @property {TestReport} testReport
  * @property {CloudflareDeployment} deployment
+ * @property {Record<string, unknown>} runInfo
  * @property {import("@actions/github/lib/context").Context} context
  */
 
@@ -135,9 +140,10 @@ const createDiagnostic = (info) => {
  * @param {object} context
  * @param {import("@actions/github/lib/context").Context} context.context
  * @param {import("@actions/core")} context.core
- * @returns {string}
+ * @param {boolean} context.debug
+ * @returns {Promise<string>}
  */
-const main = async ({ context, core }) => {
+const main = async ({ context, core, debug }) => {
   const commitSHA = process.env.COMMIT_SHA || context.sha;
   if (!isValidString(commitSHA)) {
     throw new Error(`Invalid commit SHA, received: ${commitSHA}`);
@@ -155,7 +161,8 @@ const main = async ({ context, core }) => {
 
   /** @type {CloudflareDeployment} */
   const deployment = JSON.parse(process.env.CLOUDFLARE || "{}");
-
+  /** @type {Record<string, unknown>} */
+  const runInfo = JSON.parse(process.env.RUN_INFO || "{}");
 
   const deploymentId = deployment.id;
   const deploymentUrl = deployment.url;
@@ -205,7 +212,7 @@ const main = async ({ context, core }) => {
 
   const summary = core.summary;
 
-  if (validateTestReport(testReport)) {
+  if (validateTestReport(testReport) && !isInitialEdit) {
     summary
       .addHeading(`Test Results ${spacing(testReport.conclusion === "success" ? emojis.check : emojis.times)}`, 2)
       .addImage(
@@ -232,12 +239,13 @@ const main = async ({ context, core }) => {
         projectName,
         logsUrl: deploymentLogsUrl,
       },
+      runInfo,
       context,
     }));
 
   const html = summary.stringify();
 
-  if (isInitialEdit) {
+  if (isInitialEdit || debug) {
     await summary.emptyBuffer().clear();
   } else {
     await summary.write();
