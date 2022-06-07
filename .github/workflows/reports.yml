@@ -25,7 +25,7 @@ jobs:
   before-run:
     name: Before Run
     needs: [vars]
-    if: ${{ github.event.action == "requested" && needs.vars.outputs.is_pr }}
+    if: ${{ github.event.action == 'requested' && needs.vars.outputs.is_pr }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -58,7 +58,7 @@ jobs:
   livingdoc-deploy:
     name: Deploy LivingDoc to Cloudflare Pages
     needs: [vars, before-run]
-    if: ${{ github.event.action == "completed" }}
+    if: ${{ github.event.action == 'completed' }}
     runs-on: ubuntu-latest
     env:
       PROJECT_NAME: Starter.API
@@ -87,7 +87,7 @@ jobs:
   publish_report:
     name: Publish test report
     needs: [vars, before-run]
-    if: ${{ github.event.action == "completed" }}
+    if: ${{ github.event.action == 'completed' }}
     runs-on: ubuntu-latest
     env:
       PROJECT_NAME: Starter.API
@@ -102,11 +102,11 @@ jobs:
           name: Test Results
           path: "*.trx"
           reporter: dotnet-trx
-          fail-on-error: 'false'
+          fail-on-error: "false"
   after_run:
     name: After Run
     needs: [vars, before-run, livingdoc-deploy, publish_report]
-    if: ${{ github.event.action == "completed" }}
+    if: ${{ github.event.action == 'completed' }}
     runs-on: ubuntu-latest
     steps:
       - name: Publish status to job summary and generate pull request comment
