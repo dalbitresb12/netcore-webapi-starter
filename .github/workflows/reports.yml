@@ -70,6 +70,7 @@ jobs:
       - name: Download LivingDoc artifact
         uses: dawidd6/action-download-artifact@v2
         with:
+          workflow: ${{ github.event.workflow.id }}
           run_id: ${{ github.event.workflow_run.id }}
           name: ${{ env.PROJECT_NAME }}.Tests-LivingDoc-${{ runner.os }}-${{ needs.vars.outputs.sha_short }}
       - name: Move LivingDoc to output directory
