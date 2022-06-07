@@ -58,7 +58,7 @@ jobs:
           edit-mode: replace
   livingdoc-deploy:
     name: Deploy LivingDoc to Cloudflare Pages
-    needs: [vars, before-run]
+    needs: [vars]
     if: ${{ github.event.action == 'completed' }}
     runs-on: ubuntu-latest
     env:
@@ -87,7 +87,7 @@ jobs:
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
   publish_report:
     name: Publish test report
-    needs: [vars, before-run]
+    needs: [vars]
     if: ${{ github.event.action == 'completed' }}
     runs-on: ubuntu-latest
     env:
@@ -106,7 +106,7 @@ jobs:
           fail-on-error: "false"
   after_run:
     name: After Run
-    needs: [vars, before-run, livingdoc-deploy, publish_report]
+    needs: [vars, livingdoc-deploy, publish_report]
     if: ${{ github.event.action == 'completed' }}
     runs-on: ubuntu-latest
     steps:
