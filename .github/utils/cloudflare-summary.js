@@ -205,7 +205,7 @@ const main = async ({ context, core }) => {
 
   const summary = core.summary;
 
-  if (validateTestReport(testReport) && !isInitialEdit) {
+  if (validateTestReport(testReport)) {
     summary
       .addHeading(`Test Results ${spacing(testReport.conclusion === "success" ? emojis.check : emojis.times)}`, 2)
       .addImage(
@@ -237,7 +237,7 @@ const main = async ({ context, core }) => {
 
   const html = summary.stringify();
 
-  if (isInitialEdit && !buildFailed) {
+  if (isInitialEdit) {
     await summary.emptyBuffer().clear();
   } else {
     await summary.write();
