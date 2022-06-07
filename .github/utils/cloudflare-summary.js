@@ -118,6 +118,7 @@ const createTestsText = (testReport) => {
  * @typedef DiagnosticInfo
  * @property {TestReport} testReport
  * @property {CloudflareDeployment} deployment
+ * @property {Record<string, unknown>} runInfo
  * @property {import("@actions/github/lib/context").Context} context
  */
 
@@ -155,6 +156,8 @@ const main = async ({ context, core }) => {
 
   /** @type {CloudflareDeployment} */
   const deployment = JSON.parse(process.env.CLOUDFLARE || "{}");
+  /** @type {Record<string, unknown>} */
+  const runInfo = JSON.parse(process.env.RUN_INFO || "{}");
 
 
   const deploymentId = deployment.id;
@@ -232,6 +235,7 @@ const main = async ({ context, core }) => {
         projectName,
         logsUrl: deploymentLogsUrl,
       },
+      runInfo,
       context,
     }));
 

@@ -121,6 +121,7 @@ jobs:
         env:
           COMMIT_SHA: ${{ fromJSON(needs.vars.outputs.run_info).targetCommitSha }}
           TEST_REPORT: ${{ needs.publish_report.outputs.report }}
+          RUN_INFO: ${{ needs.vars.outputs.run_info }}
           CLOUDFLARE: ${{ needs.livingdoc-deploy.outputs.deployment }}
           BUILD_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
         uses: actions/github-script@v6
