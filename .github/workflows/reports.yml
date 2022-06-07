@@ -111,6 +111,7 @@ jobs:
     if: ${{ github.event.action == 'completed' }}
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       - name: Publish status to job summary and generate pull request comment
         id: summary
         env:
