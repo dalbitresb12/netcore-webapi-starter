@@ -28,6 +28,8 @@ jobs:
     needs: [vars]
     if: ${{ github.event.action == 'requested' && fromJSON(needs.vars.outputs.is_pr) }}
     runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_PROJECT_NAME: netcore-webapi-starter-livingdoc
     steps:
       - uses: actions/checkout@v3
       - name: Create body for pull request comment (initial edit)
@@ -111,7 +113,6 @@ jobs:
     if: ${{ github.event.action == 'completed' }}
     runs-on: ubuntu-latest
     env:
-      PROJECT_NAME: Starter.API
       CLOUDFLARE_PROJECT_NAME: netcore-webapi-starter-livingdoc
     steps:
       - uses: actions/checkout@v3
