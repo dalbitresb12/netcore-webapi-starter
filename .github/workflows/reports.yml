@@ -132,12 +132,14 @@ jobs:
             return await script({ context, core });
       - name: Find previous comment on pull request
         id: fc
+        if: ${{ fromJSON(needs.vars.outputs.is_pr) }}
         uses: peter-evans/find-comment@v2
         with:
           issue-number: ${{ fromJSON(needs.vars.outputs.run_info).pullRequestNumber }}
           comment-author: dalbitresb12-bot
           body-includes: Cloudflare Pages
       - name: Create or update comment on pull request
+        if: ${{ fromJSON(needs.vars.outputs.is_pr) }}
         uses: peter-evans/create-or-update-comment@v2
         with:
           token: ${{ secrets.BOT_PAT }}
