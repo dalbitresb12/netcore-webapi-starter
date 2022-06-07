@@ -22,7 +22,7 @@ jobs:
           sourceRunId: ${{ github.event.workflow_run.id }}
       - name: Get short commit hash
         id: vars
-        run: echo "::set-output name=sha_short::$(echo '${{ steps.run_info.outputs.sourceHeadSha }}' | cut -c1-7)"
+        run: echo "::set-output name=sha_short::$(echo '${{ steps.run_info.outputs.targetCommitSha }}' | cut -c1-7)"
   before-run:
     name: Before Run
     needs: [vars]
@@ -36,7 +36,7 @@ jobs:
         id: summary
         uses: actions/github-script@v6
         env:
-          COMMIT_SHA: ${{ fromJSON(needs.vars.outputs.run_info).sourceHeadSha }}
+          COMMIT_SHA: ${{ fromJSON(needs.vars.outputs.run_info).targetCommitSha }}
           IS_INITIAL_EDIT: true
         with:
           result-encoding: string
@@ -119,7 +119,7 @@ jobs:
       - name: Publish status to job summary and generate pull request comment
         id: summary
         env:
-          COMMIT_SHA: ${{ fromJSON(needs.vars.outputs.run_info).sourceHeadSha }}
+          COMMIT_SHA: ${{ fromJSON(needs.vars.outputs.run_info).targetCommitSha }}
           TEST_REPORT: ${{ needs.publish_report.outputs.report }}
           CLOUDFLARE: ${{ needs.livingdoc-deploy.outputs.deployment }}
           BUILD_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
