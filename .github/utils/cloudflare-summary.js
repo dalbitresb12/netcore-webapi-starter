@@ -237,7 +237,7 @@ const main = async ({ context, core }) => {
 
   const html = summary.stringify();
 
-  if (isInitialEdit && !buildFailed) {
+  if (isInitialEdit) {
     await summary.emptyBuffer().clear();
   } else {
     await summary.write();
