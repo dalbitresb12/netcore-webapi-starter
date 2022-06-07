@@ -108,8 +108,9 @@ const createTestsText = (testReport) => {
 /**
  * @typedef CloudflareDeployment
  * @property {string} id
- * @property {string} projectName
  * @property {string} url
+ * @property {string} environment
+ * @property {string} projectName
  * @property {string} logsUrl
  */
 
@@ -137,7 +138,7 @@ const createDiagnostic = (info) => {
  * @returns {string}
  */
 const main = async ({ context, core }) => {
-  const commitSHA = context.sha;
+  const commitSHA = process.env.COMMIT_SHA || context.sha;
   if (!isValidString(commitSHA)) {
     throw new Error(`Invalid commit SHA, received: ${commitSHA}`);
   }
@@ -148,12 +149,16 @@ const main = async ({ context, core }) => {
   }
 
   const isInitialEdit = process.env.IS_INITIAL_EDIT === "true";
-  const buildFailed = process.env.BUILD_FAILED === "true";
+  const buildFailed = process.env.BUILD_CONCLUSION === "failed";
 
   const testReport = JSON.parse(process.env.TEST_REPORT || "{}");
 
-  const deploymentId = process.env.DEPLOYMENT_ID;
-  const deploymentUrl = process.env.DEPLOYMENT_URL;
+  /** @type {CloudflareDeployment} */
+  const deployment = JSON.parse(process.env.CLOUDFLARE || "{}");
+
+
+  const deploymentId = deployment.id;
+  const deploymentUrl = deployment.url;
   const deploymentLogsUrl = `https://dash.cloudflare.com/?to=/:account/pages/view/${projectName}/${deploymentId}`;
 
   const imgUrl = "https://user-images.githubusercontent.com/23264/106598434-9e719e00-654f-11eb-9e59-6167043cfa01.png";
@@ -223,9 +228,8 @@ const main = async ({ context, core }) => {
     .addDetails(`Diagnostic Information: What the bot saw about this commit`, createDiagnostic({
       testReport,
       deployment: {
-        id: deploymentId,
+        ...deployment,
         projectName,
-        url: deploymentUrl,
         logsUrl: deploymentLogsUrl,
       },
       context,
