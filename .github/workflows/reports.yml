@@ -26,7 +26,7 @@ jobs:
   before-run:
     name: Before Run
     needs: [vars]
-    if: ${{ github.event.action == 'requested' && needs.vars.outputs.is_pr }}
+    if: ${{ github.event.action == 'requested' && fromJSON(needs.vars.outputs.is_pr) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
