@@ -3,7 +3,7 @@
   "explorer.fileNesting.patterns": {
     "package.json": "package-lock.json",
     "appsettings.json": "appsettings.*.json",
-    "*.sln": "*.sln.DotSettings",
+    "*.sln": "*.sln.DotSettings, *.sln.DotSettings.user",
     "*.cs": "${capture}.Designer.cs",
     "*.feature": "${capture}.feature.cs"
   }
