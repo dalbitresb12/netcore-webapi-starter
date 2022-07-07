@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Starter.API.Shared.Persistence.Contexts;
 using Starter.API.Weather.Domain.Repositories;
-using Starter.API.Weather.Persistence.Contexts;
 using TechTalk.SpecFlow.Assist.ValueRetrievers;
 
 namespace Starter.API.Tests.Hooks;

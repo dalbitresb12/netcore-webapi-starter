@@ -6,14 +6,13 @@ public static class StringExtensions {
 
     yield return char.ToLower(e.Current);
 
-    while (e.MoveNext()) {
+    while (e.MoveNext())
       if (char.IsUpper(e.Current)) {
         yield return '_';
         yield return char.ToLower(e.Current);
       } else {
         yield return e.Current;
       }
-    }
   }
 
   public static string ToSnakeCase(this string text) {

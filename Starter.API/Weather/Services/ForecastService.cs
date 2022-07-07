@@ -1,4 +1,3 @@
-using Starter.API.Shared.Extensions;
 using Starter.API.Weather.Domain.Models;
 using Starter.API.Weather.Domain.Repositories;
 using Starter.API.Weather.Domain.Services;
@@ -31,9 +30,7 @@ public class ForecastService : IForecastService {
 
   public async Task<ForecastResponse> Update(long id, Forecast forecast) {
     var current = await repository.FindById(id);
-    if (current == null) {
-      return new ForecastResponse("Forecast not found");
-    }
+    if (current == null) return new ForecastResponse("Forecast not found");
 
     forecast.CopyProperties(current);
 
@@ -48,9 +45,7 @@ public class ForecastService : IForecastService {
 
   public async Task<ForecastResponse> Delete(long id) {
     var current = await repository.FindById(id);
-    if (current == null) {
-      return new ForecastResponse("Forecast not found");
-    }
+    if (current == null) return new ForecastResponse("Forecast not found");
 
     try {
       repository.Remove(current);

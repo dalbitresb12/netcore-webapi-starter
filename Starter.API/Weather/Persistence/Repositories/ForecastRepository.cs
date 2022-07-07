@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using Starter.API.Shared.Persistence.Contexts;
+using Starter.API.Shared.Persistence.Repositories;
 using Starter.API.Weather.Domain.Models;
 using Starter.API.Weather.Domain.Repositories;
-using Starter.API.Weather.Persistence.Contexts;
 
 namespace Starter.API.Weather.Persistence.Repositories;
 

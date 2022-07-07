@@ -10,8 +10,8 @@ namespace Starter.API.Weather.Controllers;
 [ApiController]
 [Route("[controller]")]
 public class ForecastController : ControllerBase {
-  private readonly IForecastService service;
   private readonly IMapper mapper;
+  private readonly IForecastService service;
 
   public ForecastController(IForecastService service, IMapper mapper) {
     this.service = service;
@@ -26,9 +26,7 @@ public class ForecastController : ControllerBase {
 
   [HttpPost]
   public async Task<IActionResult> Post([FromBody] ForecastRequest resource) {
-    if (!ModelState.IsValid) {
-      return BadRequest(ModelState.GetErrorMessages());
-    }
+    if (!ModelState.IsValid) return BadRequest(ModelState.GetErrorMessages());
 
     var forecast = mapper.Map<ForecastRequest, Forecast>(resource);
     var result = await service.Create(forecast);
@@ -37,9 +35,7 @@ public class ForecastController : ControllerBase {
 
   [HttpPut("{id:int}")]
   public async Task<IActionResult> Put(int id, [FromBody] ForecastRequest resource) {
-    if (!ModelState.IsValid) {
-      return BadRequest(ModelState.GetErrorMessages());
-    }
+    if (!ModelState.IsValid) return BadRequest(ModelState.GetErrorMessages());
 
     var forecast = mapper.Map<ForecastRequest, Forecast>(resource);
     var result = await service.Update(id, forecast);

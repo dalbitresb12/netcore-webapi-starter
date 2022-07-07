@@ -2,12 +2,9 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Starter.API.Shared.Extensions;
-using Starter.API.Weather.Domain.Repositories;
-using Starter.API.Weather.Domain.Services;
-using Starter.API.Weather.Mapping;
-using Starter.API.Weather.Persistence.Contexts;
-using Starter.API.Weather.Persistence.Repositories;
-using Starter.API.Weather.Services;
+using Starter.API.Shared.Injection;
+using Starter.API.Shared.Mapping;
+using Starter.API.Shared.Persistence.Contexts;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,24 +45,24 @@ builder.Services.AddDbContext<AppDbContext>(
 // Add lowercase routes
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
 
-// Add path prefix and versioning
-
 // Dependency Injection configuration
-builder.Services.AddScoped<IForecastRepository, ForecastRepository>();
-builder.Services.AddScoped<IForecastService, ForecastService>();
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+AppInjections.Register(builder.Services);
 
 // AutoMapper configuration
 builder.Services.AddAutoMapper(typeof(ModelToResourceProfile), typeof(ResourceToModelProfile));
 
 var app = builder.Build();
 
+var useMigrations = builder.Configuration.GetValue<bool>("UseMigrations");
+
 // Database objects validation
-if (app.Environment.IsDevelopment()) {
-  var scope = app.Services.CreateScope();
-  var context = scope.ServiceProvider.GetService<AppDbContext>();
+var scope = app.Services.CreateScope();
+var context = scope.ServiceProvider.GetService<AppDbContext>();
+
+if (useMigrations)
   context?.Database.Migrate();
-}
+else
+  context?.Database.EnsureCreated();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment()) {

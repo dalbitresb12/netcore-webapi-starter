@@ -1,6 +1,6 @@
-using Starter.API.Weather.Persistence.Contexts;
+using Starter.API.Shared.Persistence.Contexts;
 
-namespace Starter.API.Weather.Persistence.Repositories;
+namespace Starter.API.Shared.Persistence.Repositories;
 
 public class BaseRepository {
   protected readonly AppDbContext context;
