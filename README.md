@@ -1,6 +1,6 @@
-# [.NET Core Web API Starter](https://github.com/dalbitresb12/netcore-webapi-starter)
+# [.NET Core Web API Starter](https://github.com/dalbitresb12/aspnet-starter)
 
-This [template](https://github.com/dalbitresb12/netcore-webapi-starter) should help get you started developing a Web API using .NET Core 6. It includes opinionated configurations for JetBrains Rider, Visual Studio, [commitlint](https://commitlint.js.org/) with commit hooks (powered by [Husky.Net](https://alirezanet.github.io/Husky.Net/)).
+This [template](https://github.com/dalbitresb12/aspnet-starter) should help get you started developing a Web API using .NET Core 6. It includes opinionated configurations for JetBrains Rider, Visual Studio, [commitlint](https://commitlint.js.org/) with commit hooks (powered by [Husky.Net](https://alirezanet.github.io/Husky.Net/)).
 
 This project was generated using Rider's .NET Core Web API template using version 2022.1.1.
 
@@ -105,6 +105,8 @@ This project is configured to use MySQL as the database, using [Pomelo's MySQL c
 To allow the app to connect to the database, set the connection string as a secret using the .NET CLI:
 
 ```sh
+# Initialize the secrets storage for this project
+$ dotnet user-secrets init --project Starter.API
 # Don't forget to replace {YOUR_CONNECTION_STRING} with the appropriate value
 $ dotnet user-secrets set "DbConnectionString" "{YOUR_CONNECTION_STRING}" --project Starter.API
 Successfully saved DbConnectionString = {YOUR_CONNECTION_STRING} to the secret store.
