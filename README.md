@@ -108,6 +108,7 @@ To allow the app to connect to the database, set the connection string as a secr
 # Initialize the secrets storage for this project
 $ dotnet user-secrets init --project Starter.API
 # Don't forget to replace {YOUR_CONNECTION_STRING} with the appropriate value
+# Example: server=localhost;database=starter;user=admin;password=1234
 $ dotnet user-secrets set "DbConnectionString" "{YOUR_CONNECTION_STRING}" --project Starter.API
 Successfully saved DbConnectionString = {YOUR_CONNECTION_STRING} to the secret store.
 # Alternatively, move to project directory to avoid having to use `--project`
